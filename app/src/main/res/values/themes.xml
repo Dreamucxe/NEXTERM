@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark-first: the window background matches the terminal surface so there is
+         no light flash between the splash and the first frame of content. -->
+    <style name="Theme.Nexterm" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/nexterm_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+</resources>

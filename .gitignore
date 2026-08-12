@@ -1,0 +1,26 @@
+# Signing material. The keystore and its passwords must never leave this machine —
+# anyone holding both can publish an APK that Android accepts as an update to yours.
+release.keystore
+*.keystore
+*.jks
+keystore.properties
+
+# Machine-specific SDK paths.
+local.properties
+
+# Build output.
+build/
+app/build/
+.gradle/
+.kotlin/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# IDE.
+.idea/
+*.iml
+.DS_Store
+captures/

@@ -1,0 +1,272 @@
+NEXTERM — THIRD-PARTY SOFTWARE NOTICES
+======================================
+
+NEXTERM ships third-party software inside this APK. Each component below is
+listed with its licence, where it came from, and — for the components whose
+licence requires it — how to obtain its complete corresponding source code.
+
+--------------------------------------------------------------------------
+1. PRoot — bundled as native binaries
+--------------------------------------------------------------------------
+
+NEXTERM bundles two independent PRoot builds and tries them in order. Both are
+covered by the GNU General Public License, version 2 (see GPL-2.0.txt).
+
+1a. PRoot, Termux fork — tried first
+....................................
+
+Component      PRoot 5.1.107.89 (termux/proot)
+Files          lib/arm64-v8a/libproot.so           (the proot binary, MODIFIED)
+               lib/arm64-v8a/libproot-loader.so    (its 64-bit exec loader)
+               lib/arm64-v8a/libproot-loader32.so  (its 32-bit exec loader)
+Licence        GNU General Public License, version 2 (see GPL-2.0.txt)
+Copyright      Copyright (C) 2015 STMicroelectronics, PRoot contributors,
+               and Termux contributors
+Upstream       https://github.com/termux/proot
+
+These come from the Termux project's own package, whose fork carries the
+patches an Android app process needs:
+
+  proot_5.1.107.89_aarch64.deb
+  https://packages.termux.dev/apt/termux-main/pool/main/p/proot/
+  Extracted from that package: bin/proot, libexec/proot/loader,
+  libexec/proot/loader32.
+
+  sha256, as shipped here:
+    libproot.so            7da118895e971ea9fba4bb250b28af0f8db2edcbfdbaa8075cc645a0d7cf16fe
+    libproot-loader.so     44ef39c1e1a18c09f6e4c4b5d6f8bba82d30596598bd155ec162d05c5122ff04
+    libproot-loader32.so   25f6bd90bc5a3d3088026289a0d3eaf3e502bd2b00e5cb74fadd9791132efa34
+
+MODIFICATION NOTICE (GPL-2.0 section 2a)
+
+  libproot.so is NOT byte-for-byte identical to the file in that package. It
+  has been modified on 2026-08-11, in exactly one way, and no compiled code was
+  changed:
+
+    Its ELF DT_NEEDED entry "libtalloc.so.2" was rewritten in place to
+    "libtalloc.so", as a same-length NUL-padded edit of the .dynstr string
+    table. Every string offset, DT_NEEDED index and hash-table entry is
+    therefore unchanged.
+
+  Why: Android's package installer only unpacks files matching lib*.so from
+  lib/<abi>/ in an APK, so a dependency cannot be shipped under the name
+  "libtalloc.so.2" at all. The library is bundled as "libtalloc.so" (see
+  section 2) and this entry was patched to match, or the dynamic linker would
+  look for a name that cannot exist on the device.
+
+  The two loaders are unmodified copies of the files in that package.
+
+1b. PRoot, upstream — static fallback
+.....................................
+
+Component      PRoot 5.3.0
+Files          lib/arm64-v8a/libproot-static.so         (the proot binary)
+               lib/arm64-v8a/libproot-static-loader.so  (its exec loader)
+Licence        GNU General Public License, version 2 (see GPL-2.0.txt)
+Copyright      Copyright (C) 2015 STMicroelectronics, and PRoot contributors
+Upstream       https://github.com/proot-me/proot
+
+These two files are the official upstream release binaries, unmodified:
+
+  proot-v5.3.0-aarch64-static
+  https://github.com/proot-me/proot/releases/download/v5.3.0/proot-v5.3.0-aarch64-static
+  sha256 fa10b1a7818c2f5b1dcb5834450570c368c9ecf66d31521509621b95c4538a45
+
+  libproot-static.so is that file, byte for byte.
+
+  libproot-static-loader.so is the loader ELF that the same release embeds in
+  its own .rodata (the region between the symbols _binary_loader_elf_start and
+  _binary_loader_elf_end, 66832 bytes), copied out unchanged.
+  sha256 51c3427b112edc70d1979b48209c41f332616758138de3be659cc79e50436450
+
+Why they are packaged as "lib*.so": Android has mounted app-writable storage
+W^X since API 29, so an app may not execute a binary it wrote itself. The one
+app-owned directory that is executable is the native library directory, which
+the installer fills at install time — so a binary that needs to run must ship
+in the APK under lib/<abi>/ and be named lib*.so. The .so suffix is a
+packaging requirement, not a claim that these are all shared libraries; the
+upstream build is a static executable and the Termux build is a PIE. The
+loaders are bundled for the same reason: proot normally writes its loader out
+to a temporary file and executes that, which is exactly what the sandbox
+refuses, so NEXTERM points PROOT_LOADER at the bundled copy. Each build is
+paired only with the loader it was compiled against.
+
+WRITTEN OFFER OF SOURCE CODE (GPL-2.0 section 3b)
+
+  The complete corresponding source code for the PRoot binaries above is
+  published alongside them by their respective projects:
+
+      Termux fork:  https://github.com/termux/proot
+                    plus the build recipe at
+                    https://github.com/termux/termux-packages/tree/master/packages/proot
+      Upstream:     https://github.com/proot-me/proot/releases/tag/v5.3.0
+                    git clone https://github.com/proot-me/proot && git checkout v5.3.0
+
+  The one modification NEXTERM makes is described in full above and can be
+  reproduced from the unmodified binary with any ELF editor; no source change
+  is involved.
+
+  If those upstreams ever become unavailable, the maintainers of NEXTERM will,
+  for at least three years from the date this build was distributed, provide a
+  complete machine-readable copy of that source code on request, for no more
+  than the cost of physically performing the distribution. Requests may be
+  filed as an issue on the NEXTERM repository.
+
+NEXTERM itself does not link against PRoot and contains none of its code. It
+executes these binaries as separate processes, so the rest of the application
+is a separate work and is not covered by the GPL through this bundling.
+
+--------------------------------------------------------------------------
+2. Shared libraries the Termux PRoot build links against
+--------------------------------------------------------------------------
+
+The Termux PRoot build in section 1a is dynamically linked, so the two
+non-system libraries it needs are bundled beside it under lib/arm64-v8a/.
+NEXTERM sets LD_LIBRARY_PATH to that directory when it executes PRoot, because
+bionic does not search an app's native library directory automatically for an
+exec'd process, and the RUNPATH compiled into these files points into Termux's
+own private prefix, which does not exist on a device without Termux installed.
+
+2a. talloc
+..........
+
+Component      talloc 2.4.3
+File           lib/arm64-v8a/libtalloc.so  (MODIFIED — SONAME and filename only)
+Licence        GNU Lesser General Public License, version 3 or later
+               (see LGPL-3.0.txt, and GPL-3.0.txt which it builds upon)
+Copyright      Copyright (C) Andrew Tridgell 2004-2005
+               Copyright (C) Stefan Metzmacher 2006
+               and the Samba contributors
+Upstream       https://talloc.samba.org/
+
+  talloc is part of Samba and is released under the LGPL v3-or-later
+  separately from Samba as a whole, as stated in the header of its own
+  talloc.h:
+
+    ** NOTE! The following LGPL license applies to the talloc
+    ** library. This does NOT imply that all of Samba is released
+    ** under the LGPL
+
+  Taken from the Termux package, which is the build the PRoot in section 1a
+  was compiled against:
+
+    libtalloc_2.4.3_aarch64.deb
+    https://packages.termux.dev/apt/termux-main/pool/main/libt/libtalloc/
+    Extracted from that package: lib/libtalloc.so.2.4.3
+    sha256 of that file  3c9b207c0a6ea2896b7523e03f55d9ab0d9e88baa115d4c32b84058ff4246fbb
+
+    sha256, as shipped here:
+      libtalloc.so         34c92182bdbda07e009eaa09afa852c575c566691786ca456b28778222ba0afc
+
+MODIFICATION NOTICE (LGPL-3.0 section 4, GPL-3.0 section 5a)
+
+  libtalloc.so is not byte-for-byte identical to lib/libtalloc.so.2.4.3 in
+  that package. It was modified on 2026-08-11 in exactly one way, and no
+  compiled code was changed. The two files differ in precisely two bytes,
+  at offsets 0x16ac and 0x16ad:
+
+    Its ELF DT_SONAME string "libtalloc.so.2" was rewritten in place to
+    "libtalloc.so", as a same-length NUL-padded edit of the .dynstr string
+    table, so every string offset and hash-table entry is unchanged. The file
+    itself is installed under that same name.
+
+  Why: the same Android packaging rule as in section 1a — the installer only
+  unpacks files matching lib*.so, so neither the shipped filename nor the
+  SONAME the linker looks for can contain ".so.2". In the upstream package
+  libtalloc.so is a symlink to libtalloc.so.2.4.3, and an APK cannot carry a
+  symlink either, so the real file is shipped under the plain name.
+
+2b. libandroid-shmem
+....................
+
+Component      libandroid-shmem 0.7
+File           lib/arm64-v8a/libandroid-shmem.so  (unmodified)
+Licence        BSD 3-Clause (see BSD-3-Clause-libandroid-shmem.txt)
+Copyright      Copyright (c) 2013, Sergii Pylypenko
+               Copyright (c) 2017, Fredrik Fornwall
+Upstream       https://github.com/termux/libandroid-shmem
+
+  A System V shared-memory shim. Bionic does not implement shmget/shmat, so
+  Termux links this in to provide them.
+
+    libandroid-shmem_0.7_aarch64.deb
+    https://packages.termux.dev/apt/termux-main/pool/main/liba/libandroid-shmem/
+    Extracted from that package: lib/libandroid-shmem.so
+
+    sha256, as shipped here:
+      libandroid-shmem.so  84475798e07c8174dbbfaec70a827fdb02f19ffa69a589380c13e7507fd0e731
+
+  This file is that one, byte for byte.
+
+WRITTEN OFFER OF SOURCE CODE (LGPL-3.0 section 4 / GPL-3.0 section 6)
+
+  The complete corresponding source code for both libraries is published by
+  their projects:
+
+      talloc:            https://download.samba.org/pub/talloc/talloc-2.4.3.tar.gz
+                         plus the build recipe at
+                         https://github.com/termux/termux-packages/tree/master/packages/libtalloc
+      libandroid-shmem:  https://github.com/termux/libandroid-shmem
+
+  The one modification NEXTERM makes to talloc is described in full above and
+  can be reproduced from the unmodified file with any ELF editor or a two-byte
+  hex edit; no source change is involved.
+
+  If those upstreams ever become unavailable, the maintainers of NEXTERM will,
+  for at least three years from the date this build was distributed, provide a
+  complete machine-readable copy of that source code on request, for no more
+  than the cost of physically performing the distribution. Requests may be
+  filed as an issue on the NEXTERM repository.
+
+  talloc is a shared library, dynamically loaded at run time and used only by
+  the PRoot process. NEXTERM's own code does not link against it, so the
+  LGPL's terms for a "Combined Work" are satisfied by shipping it as a
+  replaceable shared object with the source offer above.
+
+--------------------------------------------------------------------------
+3. Termux terminal-emulator — Gradle dependency
+--------------------------------------------------------------------------
+
+Component      com.github.termux.termux-app:terminal-emulator:v0.118.0
+               (includes prebuilt libtermux.so for arm64-v8a, armeabi-v7a,
+               x86 and x86_64)
+Licence        Apache License 2.0 (see Apache-2.0.txt)
+Copyright      Copyright (C) Termux contributors
+Upstream       https://github.com/termux/termux-app
+
+Termux's LICENSE.md places the terminal-emulator and terminal-view modules
+under the Apache License 2.0, separately from the GPL that covers the Termux
+application as a whole. NEXTERM uses only terminal-emulator.
+
+--------------------------------------------------------------------------
+4. Rootfs images — downloaded, never bundled
+--------------------------------------------------------------------------
+
+The Linux environments NEXTERM can install are the same rootfs archives that
+termux/proot-distro publishes, downloaded on request and checksum-verified
+against the digests pinned in DistroCatalog. They are not part of this APK.
+Each distribution carries its own licences, which apply to its own contents.
+
+  https://github.com/termux/proot-distro
+
+--------------------------------------------------------------------------
+5. Other dependencies
+--------------------------------------------------------------------------
+
+Apache License 2.0
+  AndroidX (core, activity, compose, lifecycle, navigation, room, datastore,
+    documentfile, window, security-crypto, hilt), Jetpack Compose,
+    Material Components, Kotlin and kotlinx.coroutines (JetBrains),
+    Dagger/Hilt (Google), Accompanist (Google)
+
+BSD 3-Clause
+  JSch, maintained fork — com.github.mwiede:jsch
+  https://github.com/mwiede/jsch
+
+Public domain / 0-clause
+  XZ for Java — org.tukaani:xz
+  https://tukaani.org/xz/java.html
+
+Apache License 2.0
+  Shizuku API — dev.rikka.shizuku
+  https://github.com/RikkaApps/Shizuku-API

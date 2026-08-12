@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NEXTERM mark: a rounded terminal window framing a neon `>_` prompt. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Window body. Kept inside the 72x72 adaptive-icon safe zone (18..90). -->
+    <path
+        android:pathData="M26,30 L82,30 A6,6 0 0 1 88,36 L88,72 A6,6 0 0 1 82,78 L26,78 A6,6 0 0 1 20,72 L20,36 A6,6 0 0 1 26,30 Z"
+        android:fillColor="#111827"
+        android:strokeColor="#32E6C8"
+        android:strokeWidth="2.5" />
+
+    <!-- Title bar underline. -->
+    <path
+        android:pathData="M20,41 L88,41"
+        android:strokeColor="#1F3B45"
+        android:strokeWidth="2" />
+
+    <!-- Prompt chevron `>` with a neon gradient. -->
+    <path
+        android:pathData="M33,52 L41,59 L33,66"
+        android:strokeColor="#32E6C8"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Cursor underscore `_`. -->
+    <path
+        android:pathData="M48,66 L64,66"
+        android:strokeColor="#7C5CFF"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round" />
+</vector>
