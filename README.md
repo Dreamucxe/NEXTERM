@@ -5,6 +5,10 @@ running under proot — no root required.
 
 Kotlin · Jetpack Compose · Material 3 · MVVM · Hilt · Room
 
+[![Download](https://img.shields.io/badge/download-NEXTERM.apk-2ea44f?style=for-the-badge&logo=android&logoColor=white)](https://github.com/Dreamucxe/NEXTERM/releases/latest/download/NEXTERM.apk)
+[![Release](https://img.shields.io/github/v/release/Dreamucxe/NEXTERM?style=for-the-badge)](https://github.com/Dreamucxe/NEXTERM/releases/latest)
+[![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=for-the-badge&logo=android&logoColor=white)](#download)
+
 ---
 
 ## Download
@@ -20,9 +24,21 @@ Or browse [all releases](https://github.com/Dreamucxe/NEXTERM/releases).
 | Android | 7.0 or newer (API 24+) |
 | CPU | 64-bit ARM (arm64-v8a) for Linux environments |
 | Root | Not required |
+| Size | 13.3 MB |
 
 To install, open the APK and allow installation from your browser or file manager when
 prompted. The build is signed but not distributed through Play, so Android will ask.
+
+Verify what you downloaded, if you like — the current release is
+
+```
+sha256  84af4ffc4bc085d18666ec2c5eb4a455dc323244a4b5f51ccef5df67f8ab5d02
+```
+
+signed by `CN=NEXTERM, OU=Terminal, O=NEXTERM`, certificate SHA-256
+`2b81bc12ae276f4d2a2bd78783a5d4db5efc32dce5b35a55752e78b0bac091bc`. Every release is
+signed with the same key, which is what lets Android accept a later one as an update.
+Per-release checksums are on each [release page](https://github.com/Dreamucxe/NEXTERM/releases).
 
 ---
 
@@ -111,8 +127,10 @@ and keys are never logged, and never stored in plaintext.
 
 ## Third-party software
 
-NEXTERM bundles proot (GPL-2.0) and other components, and executes them as separate
-processes rather than linking against them. Full notices, checksums, and the written
-offer of source code are in
-[`app/src/main/assets/licenses/NOTICE.txt`](app/src/main/assets/licenses/NOTICE.txt),
-also readable in the app under Settings → Licences.
+NEXTERM bundles proot (GPL-2.0) and talloc (LGPL-3.0-or-later) and executes them as
+separate processes rather than linking against them. Full notices, per-file checksums,
+the two ELF modification notices, and the written offers of source code are in
+[`app/src/main/assets/licenses/NOTICE.txt`](app/src/main/assets/licenses/NOTICE.txt) —
+summarised for this repository in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md), and readable in the app under
+Settings → Licences.
